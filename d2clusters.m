@@ -100,11 +100,10 @@ function [c] = centroid( lb, labels, db, c0)
     supp = db{i}.supp(:,lb==warmlabels);    
     stride = db{i}.stride(lb == labels);
     
-    ctimer = tic;c{i} = centroid_singlephase(stride, supp, w, c0{i});ctime(1)=toc(ctimer); 
+    ctimer = tic;c{i} = centroid_sphADMM(stride, supp, w, c0{i});ctime(1)=toc(ctimer); 
     %bufferc{1} = c{i};
     %ctimer = tic;c{i} = centroid_sphLP(stride{i}, supp{i}, w{i});ctime(2)=toc(ctimer);
     %bufferc{2} = c{i};
-    %c{i} = centroid_sphADMM(stride{i}, supp{i}, w{i});
   end
   
 end

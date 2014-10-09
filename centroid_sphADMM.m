@@ -1,4 +1,4 @@
-function [c] = centroid_singlephase(stride, supp, w, c0) 
+function [c] = centroid_sphADMM(stride, supp, w, c0) 
 % Single phase centroid using ADMM
   
 
@@ -16,13 +16,7 @@ function [c] = centroid_singlephase(stride, supp, w, c0)
   
 
   if isempty(c0) || length(c0.w)~=avg_stride
-    % Compute random initial guess
-    c_means = supp * w' / n;
-    zm = supp - repmat(c_means, [1, m]);
-    c_covs = zm * diag(w) * zm' / n;
-    c.supp = mvnrnd(c_means', c_covs, avg_stride)';
-    %c.w = rand(1,avg_stride); c.w = c.w/sum(c.w);
-    c.w = 1/avg_stride * ones(1,avg_stride);
+    c=centroid_rand(stride, supp, w);
   else
     c=c0;
   end

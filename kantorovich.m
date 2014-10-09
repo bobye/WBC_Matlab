@@ -1,4 +1,4 @@
-function [fval, x] = kantorovich(X, wX, Y, wY, x0)
+function [fval, x, lambda] = kantorovich(X, wX, Y, wY, x0)
 
   global A;
 
@@ -19,10 +19,8 @@ function [fval, x] = kantorovich(X, wX, Y, wY, x0)
   D = pdist2(X', Y', 'sqeuclidean');
   f = reshape(D, n*m, 1);
   
-  Aeq = A{n,m}(1:end-1,:);
-  beq = [wX'; wY(1:end-1)'];
-  %Aeq = A{n,m};
-  %beq = [wX'; wY'];
+  %Aeq = A{n,m}(1:end-1,:);beq = [wX'; wY(1:end-1)'];
+  Aeq = A{n,m};beq = [wX'; wY'];
 
   if nargin == 4
       x0 = [];
@@ -30,19 +28,19 @@ function [fval, x] = kantorovich(X, wX, Y, wY, x0)
       x0 = reshape(x0,[n*m,1]);
   end
   
-  [x, fval, exitflag] = linprog(f, [], [], Aeq, beq, zeros(n*m,1), [], x0, default_options );
+  [x, fval, exitflag, ~, lambda] = linprog(f, [], [], Aeq, beq, zeros(n*m,1), [], x0, default_options );
 
   
   if exitflag < 0
-  [x, fval, exitflag] = linprog(f, [], [], Aeq, beq, zeros(n*m,1), [], x0, optim_options );
+  [x, fval, exitflag, ~, lambda] = linprog(f, [], [], Aeq, beq, zeros(n*m,1), [], x0, optim_options );
   end
   
   if exitflag < 0
-  [x, fval, exitflag] = linprog(f, [], [], Aeq, beq, zeros(n*m,1), [], x0, lpoptim_options );
+  [x, fval, exitflag, ~, lambda] = linprog(f, [], [], Aeq, beq, zeros(n*m,1), [], x0, lpoptim_options );
   end
   
   if exitflag < 0
-  [x, fval, exitflag] = linprog(f, [], [], Aeq, beq, zeros(n*m,1), []);
+  [x, fval, exitflag, ~, lambda] = linprog(f, [], [], Aeq, beq, zeros(n*m,1), []);
   end
 
   if exitflag < 0
