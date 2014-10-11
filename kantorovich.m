@@ -1,14 +1,11 @@
 function [fval, x, lambda] = kantorovich(X, wX, Y, wY, x0)
 
   global A;
-
-  default_options = optimset('Display','off', 'Diagnostics','off');
-  optim_options   = optimset('Display','off', 'LargeScale','off', 'Diagnostics','off');
-  lpoptim_options = optimset('Display','off', 'LargeScale','off', 'Diagnostics','off', 'Simplex', 'on');
+  global default_options optim_options lpoptim_options;
   
   n = size(X,2);
   m = size(Y,2);
-
+  
   wX = wX/sum(wX);
   wY = wY/sum(wY);
 

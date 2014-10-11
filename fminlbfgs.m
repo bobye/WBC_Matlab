@@ -4,7 +4,7 @@ function [x,fval,exitflag,output,grad]=fminlbfgs(funfcn,x_init,optim)
 %	amounts of unknown variables.
 %
 %   Optimization methods supported:
-%	- Quasi Newton Broyden–Fletcher–Goldfarb–Shanno (BFGS)  
+%	- Quasi Newton Broydenï¿½Fletcherï¿½Goldfarbï¿½Shanno (BFGS)  
 %   - Limited memory BFGS (L-BFGS)
 %   - Steepest Gradient Descent optimization.
 %   
@@ -34,7 +34,7 @@ function [x,fval,exitflag,output,grad]=fminlbfgs(funfcn,x_init,optim)
 %		OPTIONS.GradConstr, Set this variable to true if gradient calls are
 %				cpu-expensive (default). If false more gradient calls are 
 %				used and less function calls.
-%	    OPTIONS.HessUpdate : If set to 'bfgs', Broyden–Fletcher–Goldfarb–Shanno 
+%	    OPTIONS.HessUpdate : If set to 'bfgs', Broydenï¿½Fletcherï¿½Goldfarbï¿½Shanno 
 %				optimization is used (default), when the number of unknowns is 
 %				larger then 3000 the function will switch to Limited memory BFGS, 
 %				or if you set it to 'lbfgs'. When set to 'steepdesc', steepest 
@@ -100,7 +100,8 @@ function [x,fval,exitflag,output,grad]=fminlbfgs(funfcn,x_init,optim)
 defaultopt = struct('Display','final','HessUpdate','bfgs','GoalsExactAchieve',1,'GradConstr',true,  ...
 			'TolX',1e-6,'TolFun',1e-6,'GradObj','off','MaxIter',400,'MaxFunEvals',100*numel(x_init)-1,  ...
 			'DiffMaxChange',1e-1,'DiffMinChange',1e-8,'OutputFcn',[], ...
-			'rho',0.0100,'sigma',0.900,'tau1',3,'tau2', 0.1, 'tau3', 0.5,'StoreN',20);
+			'rho',0.0100,'sigma',0.900,'tau1',3,'tau2', 0.1, 'tau3', 0.5,'StoreN',20, ...
+            'stepLength', 1.0);
 
 if (~exist('optim','var')) 
     optim=defaultopt;
@@ -164,7 +165,7 @@ if(strcmp(optim.Display,'iter'))
 end
 
 % Calculate the initial error and gradient
-data.initialStepLength=1;
+data.initialStepLength=optim.stepLength;
 [data,fval,grad]=gradient_function(data.xInitial,funfcn, data, optim);
 data.gradient=grad;
 data.dir = -data.gradient;
@@ -293,7 +294,7 @@ x=reshape(x,data.xsizes);
 if(call_output_function(data,optim,'done')), exitflag=-1; end
 
 % Make exist output structure
-if(optim.HessUpdate(1)=='b'), output.algorithm='Broyden–Fletcher–Goldfarb–Shanno (BFGS)';
+if(optim.HessUpdate(1)=='b'), output.algorithm='Broydenï¿½Fletcherï¿½Goldfarbï¿½Shanno (BFGS)';
 elseif(optim.HessUpdate(1)=='l'), output.algorithm='limited memory BFGS (L-BFGS)';
 else output.algorithm='Steepest Gradient Descent'; 
 end

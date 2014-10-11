@@ -50,7 +50,7 @@ function [c] = centroid_sphADMM(stride, supp, w, c0)
     end
   end
     obj = mean(D);
-    fprintf(stdoutput, '\n\t\t %d\t %e', iter, obj );  
+    fprintf(stdoutput, '\n\t\t %d\t %f', iter, obj );  
   end
 
   d2energy(false);

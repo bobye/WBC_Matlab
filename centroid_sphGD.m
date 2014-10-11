@@ -1,9 +1,5 @@
 function [ c ] = centroid_sphGD( stride, supp, w, c0)
 % Single phase centroid using gradient decent
-
-% Re-prepare
-  global A B;
-  global stdoutput qpoptim_options;
   
   dim = size(supp,1);
   n = length(stride);
@@ -35,36 +31,46 @@ function [ c ] = centroid_sphGD( stride, supp, w, c0)
   end
   
   % compute obj and grad
-  function  [obj grad] = d2energy(x)
-  c_supp = reshape(x(1:end-avg_stride),[dim,avg_stride]);
-  c_w = x(end-avg_stride+1:end)';
+  function  [obj grad] = d2energy(c_supp, c_w)
   
-  if (any(c_w < 0)) 
-      fprintf('%f ',c_w);
-      error ('w can not be smaller than zero');  
-  end
-  grad_supp = zeros(dim, avg_stride);  
-  grad_w = zeros(avg_stride,1);
-  for it=1:n                              
+    if (any(c_w < 0)) 
+      c_w(c_w>0) = 0; c_w = c_w / sum(c_w);
+      %fprintf('%f ',c_w);
+      %error ('w can not be smaller than zero');  
+    end
+  
+    grad = zeros(avg_stride,1);
+    for it=1:n                              
       [D(it), XX{it}, lambda] = kantorovich(c_supp, c_w, suppx{it}, wx{it});      
 
-      %grad_supp = grad_supp ... 
-      %    + repmat(c_w, dim, 1).* c_supp - suppx{it} * XX{it}';
-
       f=lambda.eqlin(1:avg_stride); f=f-sum(f)/avg_stride;
-      grad_w = grad_w + f/sum(abs(f))/(avg_stride^2);
-  end
+      grad = grad - f;
+    end
     obj = mean(D);
-    grad = [grad_supp(:)*2;grad_w]/n;
+    grad = grad/n;
     %fprintf(stdoutput, '\n%e', obj );  
   end
-
-
-  addpath('fminlbfgs_version2c');
-  options = struct('GradObj','on','Display','iter','LargeScale','off','HessUpdate','bfgs','InitialHessType','identity','GoalsExactAchieve',0);
-  [x, ~] = fminlbfgs(@d2energy, [c.supp(:);c.w'], options);
   
-  c.supp(:)=x(1:end-avg_stride);
-  c.w = x(end-avg_stride+1:end);
+  nIter = 20;
+  fval = Inf;
+  for iter = 1:nIter
+    tic;
+    fval0 = fval;
+    [fval, gw] = d2energy(c.supp, c.w);
+    fprintf('\t%e ', fval ); 
+    for j=1:n
+        X(:,strips{j}) = XX{j};
+    end
+    c.supp = supp * X' ./ repmat(n*c.w, [dim, 1]);
+    c.w = c.w - 1E-4 * gw';
+    if any(c.w<0) 
+        c.w(c.w<0) = 0;
+    end
+    c.w = c.w / sum(c.w);
+    toc;
+    if abs(fval - fval0) < 1E-6 * fval
+        break;
+    end    
+  end
 end
 
