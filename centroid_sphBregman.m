@@ -26,7 +26,7 @@ function [c] = centroid_sphBregman(stride, supp, w, c0)
   end
   C = pdist2(c.supp', supp', 'sqeuclidean');
   
-  nIter = 5000;     
+  nIter = 2000;     
   rho = mean(mean(pdist2(c.supp', supp', 'sqeuclidean')));
   for iter = 1:nIter
       % update X
@@ -39,11 +39,11 @@ function [c] = centroid_sphBregman(stride, supp, w, c0)
       Z0 = Z;
       Z = X .* exp(Y/rho);
       for i=1:n
-          tmp = sum(Z(:,posvec(i):posvec(i+1)-1),2);          
-          sumW = sumW + tmp';
-          sumlogW = sumlogW + log(tmp').* tmp';
-          Z(:,posvec(i):posvec(i+1)-1) = Z(:,posvec(i):posvec(i+1)-1) .* ...
-              repmat(c.w'./tmp, [1, stride(i)]);
+          tmp = sum(Z(:,posvec(i):posvec(i+1)-1),2)';          
+          sumW = sumW + tmp;
+          sumlogW = sumlogW + log(tmp).* tmp;
+          Z(:,posvec(i):posvec(i+1)-1) = bsxfun(@times, ...
+              Z(:,posvec(i):posvec(i+1)-1)', c.w./tmp)';
       end
       % update Y      
       Y = Y + rho * (X - Z);      
