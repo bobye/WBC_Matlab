@@ -4,6 +4,10 @@ function [c] = centroid_sphBregman(stride, supp, w, c0)
   n = length(stride);
   m = length(w);
   posvec=[1,cumsum(stride)+1];
+  posStride = cell(n,1); 
+  for i=1:n
+      posStride{i} = posvec(i):posvec(i+1)-1;
+  end
   avg_stride = ceil(mean(stride));  
 
   if isempty(c0) || length(c0.w)~=avg_stride
@@ -22,7 +26,7 @@ function [c] = centroid_sphBregman(stride, supp, w, c0)
   
   % initialization
   for i=1:n
-      Z(:,posvec(i):posvec(i+1)-1) = 1/(avg_stride*stride(i));
+      Z(:,posStride{i}) = 1/(avg_stride*stride(i));
   end
   C = pdist2(c.supp', supp', 'sqeuclidean');
   
@@ -34,16 +38,14 @@ function [c] = centroid_sphBregman(stride, supp, w, c0)
       X = X .* repmat(w./sum(X), [avg_stride,1]);
       
       % update Z
-      sumW = zeros(1,avg_stride);
-      sumlogW = sumW;
+      sumlogW = zeros(1,avg_stride);
       Z0 = Z;
       Z = X .* exp(Y/rho);
+      sumW = sum(Z,2)';
       for i=1:n
-          tmp = sum(Z(:,posvec(i):posvec(i+1)-1),2)';          
-          sumW = sumW + tmp;
+          tmp = sum(Z(:,posStride{i}),2)';          
           sumlogW = sumlogW + log(tmp).* tmp;
-          Z(:,posvec(i):posvec(i+1)-1) = bsxfun(@times, ...
-              Z(:,posvec(i):posvec(i+1)-1)', c.w./tmp)';
+          Z(:,posStride{i}) = bsxfun(@times, Z(:,posStride{i})', c.w./tmp)'; % MATLAB is slow
       end
       % update Y      
       Y = Y + rho * (X - Z);      
