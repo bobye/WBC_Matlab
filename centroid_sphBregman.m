@@ -43,7 +43,7 @@ function [c] = centroid_sphBregman(stride, supp, w, c0)
       Z = X .* exp(Y/rho);
       sumW = sum(Z,2)';
       for i=1:n
-          tmp = sum(Z(:,posStride{i}),2)';          
+          tmp = sum(Z(:,posStride{i}),2)';
           sumlogW = sumlogW + log(tmp).* tmp;
           Z(:,posStride{i}) = bsxfun(@times, Z(:,posStride{i})', c.w./tmp)'; % MATLAB is slow
       end

@@ -1,7 +1,8 @@
 function [fval, x, lambda] = kantorovich_dual(X, wX, Y, wY)
 
   global A;
- 
+  global default_options optim_options lpoptim_options;
+  
   n = size(X,2);
   m = size(Y,2);
 
@@ -18,6 +19,6 @@ function [fval, x, lambda] = kantorovich_dual(X, wX, Y, wY)
   Aineq = A{n,m}'; f = -[wX'; wY'];
   Aeq = [ones(1,n),zeros(1,m)]; beq = 0;
   
-  [x, fval, ~, ~, lambda] = linprog(f, Aineq, b, Aeq, beq );
+  [x, fval, ~, ~, lambda] = linprog(f, Aineq, b, Aeq, beq, [], [], [], default_options );
 
 end

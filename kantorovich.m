@@ -16,7 +16,7 @@ function [fval, x, lambda] = kantorovich(X, wX, Y, wY, x0)
   D = pdist2(X', Y', 'sqeuclidean');
   f = reshape(D, n*m, 1);
   
-  %Aeq = A{n,m}(1:end-1,:);beq = [wX'; wY(1:end-1)'];
+%  Aeq = A{n,m}(1:end-1,:);beq = [wX'; wY(1:end-1)'];
   Aeq = A{n,m};beq = [wX'; wY'];
 
   if nargin == 4
