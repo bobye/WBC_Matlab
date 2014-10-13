@@ -13,6 +13,14 @@ function [fval, x, lambda] = kantorovich(X, wX, Y, wY, x0)
      error('format not correct');
   end
 
+  % might fail when input is NaN
+  if any(isnan(X(:))) || any(isnan(Y(:))) || any(isnan(wX)) || any(isnan(wY))
+        fprintf('%f ',X);fprintf('\n');
+        fprintf('%f ',wX);fprintf('\n');
+        fprintf('%f ',Y);fprintf('\n');
+        fprintf('%f ',wY);fprintf('\n');
+  end
+
   D = pdist2(X', Y', 'sqeuclidean');
   f = reshape(D, n*m, 1);
   
@@ -23,6 +31,19 @@ function [fval, x, lambda] = kantorovich(X, wX, Y, wY, x0)
       x0 = [];
   else
       x0 = reshape(x0,[n*m,1]);
+      if any(isnan(x0))
+          fprintf('%f ',x0);fprintf('\n');
+          x0=[];
+      end
+  end
+
+  if any(isnan(f)) || any(isnan(Aeq(:))) || any(isnan(beq))
+      disp X;
+      disp Y;
+      disp D;
+      %fprintf('%f ',f);fprintf('\n');
+      %fprintf('%f ',Aeq);fprintf('\n');
+      %fprintf('%f ',beq);fprintf('\n');
   end
   
   [x, fval, exitflag, ~, lambda] = linprog(f, [], [], Aeq, beq, zeros(n*m,1), [], x0, default_options );

@@ -20,7 +20,7 @@ max_stride = max(cellfun(@(x) max(x.stride), db));
 kantorovich_prepare(max_stride);
 
 matlabpool('open', num_of_cores); % start parallel workers
-clusters = d2clusters(db, 6);
+[clusters, labels] = d2clusters(db, 6);
 matlabpool('close');
 
 save clusters.dat clusters IDX labels

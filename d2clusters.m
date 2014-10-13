@@ -1,4 +1,4 @@
-function [clusters] = d2clusters( db, k)
+function [clusters, labels] = d2clusters( db, k)
   %%  
   % INPUT
   % k: number of clusters
@@ -16,26 +16,38 @@ function [clusters] = d2clusters( db, k)
     k = 5;
   end
 
-  clusters = [];
   n = length(db{1}.stride); % size of total samples
   labels = randi(k,1,n);
   
 
-  nROUND = 10;
-  centroid_init = randi(n,[k,1]);
+  nROUND = 5;  
   nphase = length(db);
-  clusters = cell(k);
+  clusters = cell(k,1);
+  
+  isload = false;
+  if exist('clusters_tmp.mat','file')
+  % restore last computation
+      load clusters_tmp.mat;
+      isload = true;
+  else
+  % initialization from random samples
+  centroid_init = randi(n,[k,1]);
   for j=1:k
       for i=1:nphase          
-          tmps = sum(db{i}.stride(1:centroid_init(j)-1));
+          tmps = sum(db{i}.stride(1:centroid_init(j)-1))+1;
           strips = tmps:tmps+db{i}.stride(centroid_init(j))-1;
           clusters{j}{i}.supp = db{i}.supp(:,strips);
           clusters{j}{i}.w = db{i}.w(strips);
       end
   end
+  end
 
+  % main algorithm of k centroid clustering
   for i=1:nROUND+1
     fprintf(stdoutput, 'Round %d ... ', i);
+    if i==1 && isload
+        % skip
+    else
     % relabel based on distance
     D=zeros(k,n,nphase);
     for p=1:nphase
@@ -58,13 +70,16 @@ function [clusters] = d2clusters( db, k)
     labelspast = labels;
     [~, labels] = min(DC);
     fprintf(stdoutput, '%d labels change \n',sum(labelspast ~= labels));
-    if (i==nROUND+1)||(sum(labelspast ~= labels) == 0) 
-        % export rank to each cluster centroid
-        [~, IDX] = sort(DC,2);
+    
+    
+    if (i==nROUND+1)||(sum(labelspast ~= labels) == 0)                 
         break;
     end
-    
-
+    % export rank to each cluster centroid
+    [~, IDX] = sort(DC,2);
+    % save result in each round    
+    save clusters_tmp.mat clusters IDX labels
+    end
     % compute the centroids
     for j=1:k
       fprintf(stdoutput, '\n\t cluster %d - ', j);
