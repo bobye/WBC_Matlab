@@ -14,10 +14,8 @@ function [c] = centroid_sphADMM(stride, supp, w, c0)
   avg_stride = ceil(mean(stride));  
   
   
-
-  if isempty(c0) || length(c0.w)~=avg_stride
-    c=centroid_rand(stride, supp, w);
-  else
+  [c, resampler]=centroid_rand(stride, supp, w);
+  if ~isempty(c0) && length(c0.w)==avg_stride
     c=c0;
   end
 
@@ -73,6 +71,10 @@ function [c] = centroid_sphADMM(stride, supp, w, c0)
       end
       c.supp = supp * X' ./ repmat(n*c.w, [dim, 1]);
 
+      % if some components of c.w is zero,
+      % we have to reset corresponding components c.supp
+      c.supp(:, abs(c.w)<1E-6) = resampler(sum(abs(c.w)<1E-6));
+      
       % setup initial guess for X in ADMM
       d2energy(true);
     end
@@ -143,7 +145,7 @@ function [c] = centroid_sphADMM(stride, supp, w, c0)
       end
       mu = mu + sum(c.w) - 1;
       
-      dualres = norm(w2 - c.w);
+      dualres = norm(w2 - c.w)/norm(c.w);
       primres1 = norm(lambda2 - lambda, 'fro')/sqrt(n*avg_stride);
       primres2 = norm(mu2 - mu);
       %fprintf(stdoutput, '%e\t%e\t%e', primres1, primres2, dualres);
@@ -159,7 +161,10 @@ function [c] = centroid_sphADMM(stride, supp, w, c0)
 %           mu = mu*2;
 %           fprintf(stdoutput,' /2');
 %       end
-      
+      % stopping criterion
+      if (dualres < 0.005)
+          break;
+      end
       
     end       
 

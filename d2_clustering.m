@@ -23,7 +23,7 @@ matlabpool('open', num_of_cores); % start parallel workers
 clusters = d2clusters(db, 6);
 matlabpool('close');
 
-save clusters.dat clusters IDX
+save clusters.dat clusters IDX labels
 
 n = size(statusIterRec,1);
 
