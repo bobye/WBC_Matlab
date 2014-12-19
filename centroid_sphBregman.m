@@ -20,7 +20,7 @@ function [c] = centroid_sphBregman(stride, supp, w, c0)
   save(['cstart' num2str(n) '.mat'], 'c', 'avg_stride');
   %return;
   X = zeros(avg_stride, m);
-  Y = X; Z = X; C = X;
+  Y = zeros(size(X)); Z = X; C = X;
   %D = zeros(n,1);
   
   
@@ -30,12 +30,14 @@ function [c] = centroid_sphBregman(stride, supp, w, c0)
   end
   C = pdist2(c.supp', supp', 'sqeuclidean');
   
-  nIter = 2000;     
+  nIter = 2;     
   rho = mean(mean(pdist2(c.supp', supp', 'sqeuclidean')));
   for iter = 1:nIter
       % update X
       X = Z .* exp(- (C+Y)/rho);
       X = X .* repmat(w./sum(X), [avg_stride,1]);
+      X(:,76:80)
+      w(76:80)
       
       % update Z
       sumlogW = zeros(1,avg_stride);
@@ -73,7 +75,7 @@ function [c] = centroid_sphBregman(stride, supp, w, c0)
       end
       
       % output
-      if (mod(iter, 100) == 0)
+      if (mod(iter-1, 100) == 0)
           primres = norm(X(:)-Z(:))/norm(Z(:));
           dualres = norm(Z(:)-Z0(:))/norm(Z(:));
           fprintf('\t %d %f %f %f ', iter, sum(sum(C.*X))/n, ...

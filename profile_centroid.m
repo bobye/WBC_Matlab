@@ -4,8 +4,8 @@ clear;
 setparam;
 size=500;
 
-s_modalities = 2;
-d_modalities = [3, 3];
+s_modalities = 1;
+d_modalities = [3];
 filename='../total.txt';
 db = loaddata(size, s_modalities, d_modalities, filename);
 
@@ -22,7 +22,7 @@ kantorovich_prepare(max_stride);
 %profile viewer
 %%
 profile on
-for s=2:2 %1:s_modalities
+for s=1:1 %1:s_modalities
     c.Bregman = centroid_sphBregman(db{s}.stride, db{s}.supp, db{s}.w, []);
     centroid_sphEnergy(db{s}.stride, db{s}.supp, db{s}.w, c.Bregman);    
 end
