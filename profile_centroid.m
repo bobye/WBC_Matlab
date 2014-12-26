@@ -4,9 +4,9 @@ clear;
 setparam;
 size=500;
 
-s_modalities = 1;
-d_modalities = [3];
-filename='../total.txt';
+s_modalities = 2;
+d_modalities = [3 3];
+filename='../mountaindat.txt';
 db = loaddata(size, s_modalities, d_modalities, filename);
 
 max_stride = max(cellfun(@(x) max(x.stride), db));

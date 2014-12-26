@@ -30,14 +30,12 @@ function [c] = centroid_sphBregman(stride, supp, w, c0)
   end
   C = pdist2(c.supp', supp', 'sqeuclidean');
   
-  nIter = 2;     
+  nIter = 500;     
   rho = mean(mean(pdist2(c.supp', supp', 'sqeuclidean')));
   for iter = 1:nIter
       % update X
       X = Z .* exp(- (C+Y)/rho);
       X = X .* repmat(w./sum(X), [avg_stride,1]);
-      X(:,76:80)
-      w(76:80)
       
       % update Z
       sumlogW = zeros(1,avg_stride);
@@ -55,10 +53,10 @@ function [c] = centroid_sphBregman(stride, supp, w, c0)
       sumW = exp(sumlogW ./ sumW);
       c.w = sumW / sum(sumW);
       % update c.supp and compute C (lazy)
-      if mod(iter-1, 100)==0
-        c.supp = supp * X' ./ repmat(n*c.w, [dim, 1]);      
+      %if mod(iter, 50)==0
+        c.supp = supp * X' ./ repmat(sum(X,2)', [dim, 1]);      
         C = pdist2(c.supp', supp', 'sqeuclidean');
-      end
+      %end
       
       % The constraint X=Z are not necessarily strongly enforced
       % during the update of w, which makes it suitable to reset
@@ -75,7 +73,7 @@ function [c] = centroid_sphBregman(stride, supp, w, c0)
       end
       
       % output
-      if (mod(iter-1, 100) == 0)
+      if (mod(iter, 100) == 0)
           primres = norm(X(:)-Z(:))/norm(Z(:));
           dualres = norm(Z(:)-Z0(:))/norm(Z(:));
           fprintf('\t %d %f %f %f ', iter, sum(sum(C.*X))/n, ...
