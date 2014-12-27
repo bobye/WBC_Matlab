@@ -1,4 +1,4 @@
-function [ c ] = centroid_rand( stride, supp, w )
+function [ c, resampler ] = centroid_rand( stride, supp, w )
 % generate random centroid using mvnrnd()
   n = length(stride);
   m = length(w);
@@ -19,6 +19,6 @@ function [ c ] = centroid_rand( stride, supp, w )
         P = mvnrnd(c_means',c_covs, k)';
     end
 
-    %resampler = onesupp;
+    resampler = @(k) onesupp(k);
 end
 

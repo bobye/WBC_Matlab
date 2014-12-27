@@ -69,11 +69,11 @@ function [c] = centroid_sphADMM(stride, supp, w, c0)
       for j=1:n
         X(:,strips{j}) = XX{j};
       end
-      c.supp = supp * X' ./ repmat(n*c.w, [dim, 1]);
+      c.supp = supp * X' ./ repmat(sum(X,2)', [dim, 1]);
 
       % if some components of c.w is zero,
       % we have to reset corresponding components c.supp
-      c.supp(:, abs(c.w)<1E-6) = resampler(sum(abs(c.w)<1E-6));
+      % c.supp(:, abs(c.w)<1E-6) = resampler(sum(abs(c.w)<1E-6));
       
       % setup initial guess for X in ADMM
       d2energy(true);
