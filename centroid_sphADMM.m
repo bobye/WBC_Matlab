@@ -54,16 +54,17 @@ function [c] = centroid_sphADMM(stride, supp, w, c0)
   d2energy(false);
 
 
-% optimization
-  
+% ADMM optimization
 
-  nIter = 20; 
+  nIter = 50; 
   suppIter = 1;
   admmIter = 10;
 
+  fprintf(stdoutput,'\n');  
   statusIter = zeros(nIter,1);
-  for iter=1:nIter
-    tic;  
+  elapsedTime = zeros(nIter,1);
+  tic; 
+  for iter=1:nIter    
     for xsupp=1:suppIter
       % update c.supp
       for j=1:n
@@ -76,14 +77,13 @@ function [c] = centroid_sphADMM(stride, supp, w, c0)
       % c.supp(:, abs(c.w)<1E-6) = resampler(sum(abs(c.w)<1E-6));
       
       % setup initial guess for X in ADMM
-      d2energy(true);
+      % d2energy(true);
     end
     
     % update c.w as well as X, using ADMM
 
     % empirical parameters
     pho = 50*mean(D);
-    rho = 1.;
 
     % precompute linear parameters
     C = pdist2(c.supp', supp', 'sqeuclidean');
@@ -91,18 +91,11 @@ function [c] = centroid_sphADMM(stride, supp, w, c0)
     for i=1:n
         Cx{i} = C(:,strips{i});
     end
-    %C=zeros(avg_stride,m);
-
+    
     % lagrange multiplier
-    lambda =  zeros(avg_stride, n);
-    mu = 0;
-    
-    
-    
-    
+    lambda =  zeros(avg_stride, n); 
     
     for admm=1:admmIter
-      %toc;tic;
       % step 1, update X
       
       
@@ -127,28 +120,25 @@ function [c] = centroid_sphADMM(stride, supp, w, c0)
 
       % step 2, update c.w
       w2 = c.w;
-      %fprintf(stdoutput, '\n%f', w2);
       
-      %H = n*eye(avg_stride);
-      %q = - (sum(X, 2) + sum(lambda, 2));
-      %[c.w] = quadprog(H, q, [], [], ones(1,avg_stride), 1, zeros(avg_stride,1), [], c.w', optim_options)';
+      H = n*eye(avg_stride);
+      q = - (sum(X, 2) + sum(lambda, 2));
+      [c.w] = quadprog(H, q, [], [], ones(1,avg_stride), 1, zeros(avg_stride,1), [], c.w', qpoptim_options)';
       
-      H = n * eye(avg_stride) + rho * ones(avg_stride);
-      q = - (sum(X, 2) + sum(lambda, 2) + rho*(1 - mu));
-      [c.w] = quadprog(H, q, [], [], [], [], zeros(avg_stride,1), [], c.w', qpoptim_options)';
+      %H = n * eye(avg_stride) + rho * ones(avg_stride);
+      %q = - (sum(X, 2) + sum(lambda, 2) + rho*(1 - mu));
+      %[c.w] = quadprog(H, q, [], [], [], [], zeros(avg_stride,1), [], c.w', qpoptim_options)';
 
-      % step 3, update lambda and mu
-      lambda2 = lambda; mu2 = mu;
+      % step 3, update dual variables: lambda and mu
+      lambda2 = lambda; 
       
-      for i=1:n
+      parfor i=1:n
         lambda(:, i) = lambda(:, i) + sum(XX{i},2) - c.w';
       end
-      mu = mu + sum(c.w) - 1;
       
-      dualres = norm(w2 - c.w)/norm(c.w);
+      dualres = norm(w2 - c.w);
       primres1 = norm(lambda2 - lambda, 'fro')/sqrt(n*avg_stride);
-      primres2 = norm(mu2 - mu);
-      %fprintf(stdoutput, '%e\t%e\t%e', primres1, primres2, dualres);
+      %fprintf(stdoutput, '\t%f\t%f', primres1, dualres);
       
 %       if primres1 > 10*dualres
 %           pho = 2 * pho;
@@ -169,9 +159,13 @@ function [c] = centroid_sphADMM(stride, supp, w, c0)
     end       
 
     % sum2one(c.w)
-    c.w = c.w/sum(c.w);
+    %c.w = c.w/sum(c.w);
+
     % output status
-    statusIter(iter) = d2energy(false);toc;
+    statusIter(iter) = d2energy(false);
+    
+    elapsedTime(iter) = toc;
+    fprintf(stdoutput, '\t%fs', elapsedTime(iter));    
     % pause;
   end
   
@@ -179,12 +173,12 @@ function [c] = centroid_sphADMM(stride, supp, w, c0)
   statusIterRec = statusIter;
   
   %h = figure;
-  %plot(statusIter);
+  plot(elapsedTime, statusIter);
   %print(h, '-dpdf', 'centroid_singlephase.pdf');
   
-  fprintf(stdoutput, ' %f', c.w);
   fprintf(stdoutput, '\n');
-  
+  fprintf(stdoutput, ' %f', c.w);  
+  fprintf(stdoutput, '\n');
   
 end
 

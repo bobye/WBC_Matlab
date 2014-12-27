@@ -30,10 +30,12 @@ kantorovich_prepare(max_stride);
 %profile viewer
 
 %%
+profile on
 for s=2:2 %1:s_modalities
     c.ADMM = centroid_sphADMM(db{s}.stride, db{s}.supp, db{s}.w, []);
 end
-
+profile off
+profile viewer
 %%
 %for s=1:1 %1:s_modalities
 %    c.LP = centroid_sphLP(db{s}.stride, db{s}.supp, db{s}.w);
