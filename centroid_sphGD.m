@@ -62,10 +62,7 @@ function [ c ] = centroid_sphGD( stride, supp, w, c0)
         X(:,strips{j}) = XX{j};
     end
     c.supp = supp * X' ./ repmat(n*c.w, [dim, 1]);
-    c.w = c.w - 1E-4 * gw';
-    if any(c.w<0) 
-        c.w(c.w<0) = 0;
-    end
+    c.w = c.w .* exp(-8E-3 * gw' .* c.w .* (1-c.w));
     c.w = c.w / sum(c.w);
     toc;
     if abs(fval - fval0) < 1E-6 * fval
