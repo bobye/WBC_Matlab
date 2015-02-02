@@ -6,10 +6,10 @@ centroids.num = meta_class;
 samples.num = total_size;
 
 
-perturbation.supp = .1/centroids.m^(1/dim);
+perturbation.supp = .1/(centroids.m^(1/dim));
 perturbation.w = .5/centroids.num;
 
-centroids.supp = rand(dim, centroids.m, centroids.num);
+centroids.supp = randn(dim, centroids.m, centroids.num);
 centroids.w = gamrnd(ones(centroids.m,centroids.num), 1); 
 centroids.w = centroids.w ./ repmat(sum(centroids.w), [centroids.m, 1]);
 
@@ -19,9 +19,9 @@ samples.labels = randi(centroids.num, [samples.num, 1]);
 samples.supp = reshape(centroids.supp(:,:,samples.labels), dim, centroids.m*samples.num);
 samples.w = centroids.w(:,samples.labels);
 
-samples.supp = samples.supp + perturbation.supp * randn([dim, centroids.m*samples.num]);
+samples.supp = samples.supp + perturbation.supp * trnd(2*ones(dim, centroids.m*samples.num));
 samples.w = samples.w + perturbation.w * randn([centroids.m, samples.num]);
-samples.w(samples.w<0) = 1E-3 / centroids.m;
+samples.w(samples.w<(1E-3 / centroids.m)) = 1E-3 / centroids.m;
 samples.w = samples.w ./ repmat(sum(samples.w), [centroids.m, 1]);
 
 filename = ['../data/synthetic_data/' num2str(samples.num) '_' ... 
