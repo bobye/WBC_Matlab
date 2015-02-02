@@ -1,16 +1,16 @@
+function [] = syntheticdata(dim, stride, meta_class, total_size)
 % generate synthetic data
 
-dim = 3;
-centroids.m = 5;
-centroids.num = 10;
-samples.num = 3000;
+centroids.m = stride;
+centroids.num = meta_class;
+samples.num = total_size;
 
 
 perturbation.supp = .1/centroids.m^(1/dim);
 perturbation.w = .5/centroids.num;
 
 centroids.supp = rand(dim, centroids.m, centroids.num);
-centroids.w = rand(centroids.m, centroids.num); 
+centroids.w = gamrnd(ones(centroids.m,centroids.num), 1); 
 centroids.w = centroids.w ./ repmat(sum(centroids.w), [centroids.m, 1]);
 
 
@@ -21,14 +21,14 @@ samples.w = centroids.w(:,samples.labels);
 
 samples.supp = samples.supp + perturbation.supp * randn([dim, centroids.m*samples.num]);
 samples.w = samples.w + perturbation.w * randn([centroids.m, samples.num]);
-samples.w(samples.w<0) = 0;
+samples.w(samples.w<0) = 1E-3 / centroids.m;
 samples.w = samples.w ./ repmat(sum(samples.w), [centroids.m, 1]);
 
-filename = ['../' num2str(samples.num) '_' ... 
+filename = ['../data/synthetic_data/' num2str(samples.num) '_' ... 
              num2str(dim) '_' ...
              num2str(centroids.m) '_' ...
              num2str(centroids.num)];
-fid = fopen([filename '.txt'],'w');
+fid = fopen([filename '.d2'],'w');
 for i=1:samples.num
     fprintf(fid, '%d\n', dim);
     fprintf(fid, '%d\n', centroids.m);
@@ -41,7 +41,7 @@ end
          
 fclose(fid);
 
-fid = fopen([filename '_c.txt'],'w');
+fid = fopen([filename '_c.d2'],'w');
 for i=1:centroids.num
     fprintf(fid, '%d\n', dim);
     fprintf(fid, '%d\n', centroids.m);
