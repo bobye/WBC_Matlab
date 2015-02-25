@@ -28,28 +28,28 @@ filename = ['../data/synthetic_data/' num2str(samples.num) '_' ...
              num2str(dim) '_' ...
              num2str(centroids.m) '_' ...
              num2str(centroids.num)];
-fid = fopen([filename '.d2'],'w');
+%fid = fopen([filename '.d2'],'w');
 for i=1:samples.num
-    fprintf(fid, '%d\n', dim);
-    fprintf(fid, '%d\n', centroids.m);
-    fprintf(fid, '%f ', samples.w(:,i)'); fprintf(fid,'\n');
+    printf( '%d\n', dim);
+    printf( '%d\n', centroids.m);
+    printf( '%f ', samples.w(:,i)'); printf('\n');
     for j=(centroids.m*(i-1)+1) : centroids.m*i
-        fprintf(fid, '%f ',samples.supp(:, j)); fprintf(fid, '\n');
+        printf( '%f ',samples.supp(:, j)); printf( '\n');
     end
-    fprintf(fid,'\n');
+    printf('\n');
 end
          
-fclose(fid);
+%fclose(fid);
 
-fid = fopen([filename '_c.d2'],'w');
-for i=1:centroids.num
-    fprintf(fid, '%d\n', dim);
-    fprintf(fid, '%d\n', centroids.m);
-    fprintf(fid, '%f ', centroids.w(:,i)'); fprintf(fid, '\n');
-    for j=1:centroids.m
-        fprintf(fid, '%f ', centroids.supp(:,j,i)); fprintf(fid, '\n');
-    end
-end
-fclose(fid);
+%fid = fopen([filename '_c.d2'],'w');
+%for i=1:centroids.num
+    %printf( '%d\n', dim);
+    %printf( '%d\n', centroids.m);
+    %printf( '%f ', centroids.w(:,i)'); printf( '\n');
+    %for j=1:centroids.m
+        %printf( '%f ', centroids.supp(:,j,i)); printf( '\n');
+    %end
+%end
+%fclose(fid);
 
 
