@@ -20,7 +20,16 @@ function [c] = centroid_sphBregman(stride, supp, w, c0)
   save(['cstart' num2str(n) '.mat'], 'c', 'avg_stride');
   %return;
   X = zeros(avg_stride, m);
-  Y = zeros(size(X)); Z = X; C = X;
+  Y = zeros(size(X)); Z = X;
+  spIDX_rows = zeros(avg_stride * m,1);
+  spIDX_cols = zeros(avg_stride * m,1);
+  for i=1:n
+      [xx, yy] = meshgrid((i-1)*avg_stride + (1:avg_stride), posStride{i});
+      ii = avg_stride*(posvec(i)-1) + (1:(avg_stride*stride(i)));
+      spIDX_rows(ii) = xx';
+      spIDX_cols(ii) = yy';
+  end
+  spIDX = repmat(speye(avg_stride), [1, n]);
   %D = zeros(n,1);
   
   
@@ -30,33 +39,33 @@ function [c] = centroid_sphBregman(stride, supp, w, c0)
   end
   C = pdist2(c.supp', supp', 'sqeuclidean');
   
-  nIter = 500;     
-  rho = mean(mean(pdist2(c.supp', supp', 'sqeuclidean')));
+  nIter = 2000;     
+  rho = 2.*mean(mean(pdist2(c.supp', supp', 'sqeuclidean')));
   for iter = 1:nIter
       % update X
-      X = Z .* exp(- (C+Y)/rho);
-      X = X .* repmat(w./sum(X), [avg_stride,1]);
+      X = Z .* exp((C+Y)/(-rho)) + eps;
+      X = bsxfun(@times, X', w'./sum(X)')';
       
       % update Z
-      sumlogW = zeros(1,avg_stride);
       Z0 = Z;
-      Z = X .* exp(Y/rho);
-      sumW = sum(Z,2)';
-      for i=1:n
-          tmp = sum(Z(:,posStride{i}),2)';
-          sumlogW = sumlogW + log(tmp).* tmp;
-          Z(:,posStride{i}) = bsxfun(@times, Z(:,posStride{i})', c.w./tmp)'; % MATLAB is slow
-      end
+      Z = X .* exp(Y/rho) + eps;
+      spZ = sparse(spIDX_rows, spIDX_cols, Z(:), avg_stride * n, m, avg_stride * m);
+      tmp = full(sum(spZ, 2)); tmp = reshape(tmp, [avg_stride, n]);
+      dg = bsxfun(@times, 1./tmp, c.w'); 
+      dg = sparse(1:avg_stride*n, 1:avg_stride*n, dg(:));
+      Z = full(spIDX * dg * spZ);
+      
       % update Y      
       Y = Y + rho * (X - Z);      
       % update c.w
-      sumW = exp(sumlogW ./ sumW);
+      tmp = bsxfun(@times, tmp', 1./sum(tmp)');
+      sumW = sum(tmp);
       c.w = sumW / sum(sumW);
       % update c.supp and compute C (lazy)
-      %if mod(iter, 50)==0
+      if mod(iter, 10)==0
         c.supp = supp * X' ./ repmat(sum(X,2)', [dim, 1]);      
         C = pdist2(c.supp', supp', 'sqeuclidean');
-      %end
+      end
       
       % The constraint X=Z are not necessarily strongly enforced
       % during the update of w, which makes it suitable to reset
@@ -74,8 +83,8 @@ function [c] = centroid_sphBregman(stride, supp, w, c0)
       
       % output
       if (mod(iter, 100) == 0)
-          primres = norm(X(:)-Z(:))/norm(Z(:));
-          dualres = norm(Z(:)-Z0(:))/norm(Z(:));
+          primres = norm(X-Z,'fro')/norm(Z,'fro');
+          dualres = norm(Z-Z0,'fro')/norm(Z,'fro');
           fprintf('\t %d %f %f %f ', iter, sum(sum(C.*X))/n, ...
               primres, dualres);
           fprintf('\n');          
