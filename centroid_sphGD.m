@@ -1,6 +1,12 @@
 function [ c ] = centroid_sphGD( stride, supp, w, c0)
-% Single phase centroid using gradient decent
-  
+  % The algorithmic prototype of Wasserstein Barycenter using subgradient
+  % descent method with re-parametrization.
+  % This approach has been described in the following paper:
+  %     Jianbo Ye, Panruo Wu, James Z. Wang and Jia Li, Fast Discrete
+  %     Distribution Clustering Under Wasserstein Distance, submitted 2015
+  % 
+  % This code has been created by Jianbo Ye (jxy198 [AT] ist.psu.edu).
+  %   
   dim = size(supp,1);
   n = length(stride);
   m = length(w);
