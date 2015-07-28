@@ -1,5 +1,11 @@
 function [c] = centroid_sphADMM(stride, supp, w, c0) 
-% Single phase centroid using ADMM
+  % Single phase centroid using ADMM
+  % The algorithmic prototype of Wasserstein Barycenter using ADMM
+  % This approach has been described in the following paper:
+  %     Jianbo Ye and Jia Li, Scaling Up Discrete 
+  %     Distribution Clustering Using ADMM, ICIP 2014
+  % 
+  % This code has been created by Jianbo Ye (jxy198 [AT] ist.psu.edu).
   
 
   
