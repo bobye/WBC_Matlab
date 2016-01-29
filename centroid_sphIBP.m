@@ -33,7 +33,7 @@ function [c] = centroid_sphIBP(stride, supp, w, c0)
   C = pdist2(c.supp', supp', 'sqeuclidean');
   
   nIter = 2000;
-  rho = 1E-1 * mean(mean(pdist2(c.supp', supp', 'sqeuclidean')));
+  rho = 1E-2 * mean(mean(pdist2(c.supp', supp', 'sqeuclidean')));
   
   xi=exp(-C / rho);
   xi=sparse(spIDX_rows, spIDX_cols, xi(:), avg_stride * n, m);
@@ -46,7 +46,7 @@ function [c] = centroid_sphIBP(stride, supp, w, c0)
     v=w1 ./ full(xi'*u);
     %c.w = mean(reshape(u .* full(xi * v), avg_stride, n), 2)';
     c.w = geomean(reshape(u .* full(xi * v), avg_stride, n), 2)';
-    if mod(iter, 100)==0
+    if false && mod(iter, 10)==0
         X=full(spIDX * spdiags(u, 0, avg_stride*n, avg_stride*n) * xi * spdiags(v, 0, m, m));
         c.supp = supp * X' ./ repmat(sum(X,2)', [d, 1]);
         C = pdist2(c.supp', supp', 'sqeuclidean');
@@ -55,7 +55,7 @@ function [c] = centroid_sphIBP(stride, supp, w, c0)
     end
     
     % output
-    if (mod(iter, 100) == 0)
+    if false && mod(iter, 100) == 0
         fprintf('\t %d %f\n', iter, sum(C(:).*X(:))/n);        
     end    
   end

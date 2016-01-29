@@ -6,7 +6,7 @@ function [c] = centroid_sphBregman(stride, supp, w, c0)
   % 
   % This code has been created by Jianbo Ye (jxy198 [AT] ist.psu.edu).
   % 
-  dim = size(supp,1);
+  d = size(supp,1);
   n = length(stride);
   m = length(w);
   posvec=[1,cumsum(stride)+1];
@@ -19,7 +19,8 @@ function [c] = centroid_sphBregman(stride, supp, w, c0)
   end
   
   %save cstart.mat
-  save(['cstart' num2str(n) '.mat'], 'c', 'avg_stride');
+  %save(['cstart' num2str(n) '.mat'], 'c', 'avg_stride');
+  load(['cstart' num2str(n) '.mat']);
   %return;
   X = zeros(avg_stride, m);
   Y = zeros(size(X)); Z = X;
@@ -66,7 +67,7 @@ function [c] = centroid_sphBregman(stride, supp, w, c0)
       
       % update c.supp and compute C (lazy)
       if mod(iter, 10)==0
-        c.supp = supp * X' ./ repmat(sum(X,2)', [dim, 1]);      
+        c.supp = supp * X' ./ repmat(sum(X,2)', [d, 1]);      
         C = pdist2(c.supp', supp', 'sqeuclidean');
       end
       
@@ -88,7 +89,7 @@ function [c] = centroid_sphBregman(stride, supp, w, c0)
       if (mod(iter, 100) == 0)
           primres = norm(X-Z,'fro')/norm(Z,'fro');
           dualres = norm(Z-Z0,'fro')/norm(Z,'fro');
-          fprintf('\t %d %f %f %f ', iter, sum(sum(C.*X))/n, ...
+          fprintf('\t %d %f %f %f ', iter, sum(C(:).*X(:))/n, ...
               primres, dualres);
           fprintf('\n');          
       end
