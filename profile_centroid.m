@@ -21,13 +21,13 @@ kantorovich_prepare(max_stride);
 %profile off
 %profile viewer
 %%
-profile on
+%profile on
 for s=1:1 %1:s_modalities
     c.Bregman = centroid_sphBregman(db{s}.stride, db{s}.supp, db{s}.w, []);
     centroid_sphEnergy(db{s}.stride, db{s}.supp, db{s}.w, c.Bregman);    
 end
-profile off
-profile viewer
+%profile off
+%profile viewer
 
 %%
 %profile on
@@ -40,3 +40,9 @@ profile viewer
 %for s=1:1 %1:s_modalities
 %    c.LP = centroid_sphLP(db{s}.stride, db{s}.supp, db{s}.w);
 %end
+
+%%
+for s=1:1
+    c.IBP = centroid_sphIBP(db{s}.stride, db{s}.supp, db{s}.w, []);
+    centroid_sphEnergy(db{s}.stride, db{s}.supp, db{s}.w, c.IBP);
+end
