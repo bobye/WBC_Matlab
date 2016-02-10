@@ -43,6 +43,14 @@ end
 
 %%
 for s=1:1
+    tic;
     c.IBP = centroid_sphIBP(db{s}.stride, db{s}.supp, db{s}.w, []);
+    toc;    
     centroid_sphEnergy(db{s}.stride, db{s}.supp, db{s}.w, c.IBP);
+end
+
+%%
+for s=1:1
+    [model, beta] = mixture_sphSimulAnn(db{s}.stride, db{s}.supp, db{s}.w, 1);
+    centroid_sphEnergy(db{s}.stride, db{s}.supp, db{s}.w, model);
 end
