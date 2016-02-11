@@ -7,11 +7,23 @@ function [model, beta] = mixture_sphSimulAnn(stride, supp, w, ncomp)
   avg_stride = ceil(mean(stride));  
  
   %% Wasserstein barycenter initial
+  if (ncomp == 1)
   load(['cstart' num2str(n) '.mat']);  
   model.ncomp = ncomp;
   model.supp = c.supp;
   model.w = c.w;  
   beta=ones(ncomp, n)/ncomp;
+  %% Wasserstein mixture initial
+  else
+  load(['cstart' num2str(n) '.mat']);
+  model.ncomp = ncomp;
+  model.supp = c.supp;
+  for i=1:ncomp
+    model.w=gamrnd(100*ones(ncomp, avg_stride), 1.);
+    model.w=bsxfun(@times, model.w, 1./sum(model.w, 2));
+    beta=ones(ncomp, n)/ncomp;
+  end
+  end
   %%
   assert(ncomp == size(model.w,1));
   
@@ -34,7 +46,7 @@ function [model, beta] = mixture_sphSimulAnn(stride, supp, w, ncomp)
   end
   
   C = pdist2(model.supp', supp', 'sqeuclidean'); mC=mean(C(:));
-  gamma = 1E-3;
+  gamma = 2E-3;
   T=1E-1 * mC;
   obj=zeros(nIter,1);
   pobj=zeros(nIter,1);
@@ -61,11 +73,12 @@ function [model, beta] = mixture_sphSimulAnn(stride, supp, w, ncomp)
           gd=f1{i} - mean(f2{i}); % subgradient
           md=0.9*md + gd;
           if maxobj > 0          
-          model.w = model.w .* exp(-gamma * beta(:,i) * md' /mC);
+          model.w = model.w .* exp(-(gamma/mC) * beta(:,i) * md');
           model.w = bsxfun(@times, model.w, 1./(sum(model.w, 2)+eps));
+          beta(:,i) = beta(:,i) .* exp(-(gamma/mC) * (model.w * md) );
+          beta(:,i) = beta(:,i) / (sum(beta(:,i)) + eps); 
           end
-          beta(:,i) = beta(:,i) * exp(-gamma * model.w * md /mC);
-          beta(:,i) = beta(:,i) / (sum(beta(:,i)) + eps);          
+                   
           
           % support points
           % method 1
@@ -91,8 +104,8 @@ function [model, beta] = mixture_sphSimulAnn(stride, supp, w, ncomp)
       pobj(iter)=pobj(iter)/n;
       fprintf('OBJ: %f ', obj(iter));
       fprintf('POBJ: %f ', pobj(iter));
-      fprintf('W: '); fprintf('%f ', model.w); 
-      if (obj(iter) > maxobj && obj(iter) > 0)
+      %fprintf('W: '); fprintf('%f ', model.w); 
+      if (mod(iter, 10) == 0 || (obj(iter) > maxobj)) && obj(iter) > 0
       csupp = bsxfun(@times, csupp, 1./csuppw);
       msupp = 0.9 * msupp + (csupp - model.supp);
       model.supp = model.supp + gamma * msupp;
