@@ -1,6 +1,8 @@
-function [c] = centroid_sphLP(stride, supp, w)
+function [c] = centroid_sphLP(stride, supp, w, options)
 % Single phase centroid using FULL Linear Programming
-
+if isfield(options, 'mosek_path')
+    addpath(options.mosek_path);
+end
 % Re-prepare
   global A B;
   global stdoutput;
@@ -9,11 +11,10 @@ function [c] = centroid_sphLP(stride, supp, w)
   n = length(stride);
   m = length(w);
 
-% load start guess
-  avg_stride = ceil(mean(stride));
-  load(['cstart' num2str(n) '.mat']);
+  c=centroid_init(stride, supp, w, options);
+  support_size=length(c.w);
 
-  X = zeros(avg_stride, m);
+  X = zeros(support_size, m);
   D = zeros(n,1);
 
   iter=0;
@@ -34,66 +35,76 @@ function [c] = centroid_sphLP(stride, supp, w)
   fprintf(stdoutput, '\n\t\t %d\t %e', iter, obj );      
   end
 
-  d2energy(false);
+  %d2energy(false);
 
 % optimization
 
   nIter = 20;
+  if isfield(options, 'max_iters') && ~isfield(options, 'support_points')
+      nIter=options.max_iters;
+  elseif isfield(options, 'support_points')
+      nIter = 1;
+  end
   suppIter = 1;
-  admmIter = 10;
   cterm = Inf;
   statusIter = zeros(nIter,1);
+  iter_tol = 1E-4;
   for iter=1:nIter
-      toc;tic;
     % update c.supp
     for xsupp=1:suppIter
-    c.supp = supp * X' ./ repmat(n*c.w, [dim,1]);
     d2energy(true);
+    c.supp = supp * X' ./ repmat(n*c.w, [dim,1]);
     end
     %    x = [ reshape(X, avg_stride*m, 1); c.w'];
     
     % update c.w as well as X, using full LP
     C = pdist2(c.supp', supp', 'sqeuclidean');
-    f = reshape(C, avg_stride*m, 1);
-    ff = [f; zeros(avg_stride,1)];
+    f = reshape(C, support_size*m, 1);
+    ff = [f; zeros(support_size,1)];
     
-    Aeq = zeros(avg_stride*n + m + 1, avg_stride*(m+1));
-    beq = zeros(avg_stride*n + m + 1, 1);
+    Aeq = sparse(support_size*n + m + 1, support_size*(m+1));
+    beq = sparse(support_size*n + m + 1, 1);
 
     posi=1;pos=1;posm=1;
     for i=1:n
         stripi = posi:posi+stride(i)-1;
-        strips = pos:pos+stride(i)+avg_stride-1;
-        stripsm= posm:posm+stride(i)*avg_stride-1;
-        Aeq(strips,stripsm) = A{avg_stride, stride(i)};
-        beq(strips,1) = [zeros(avg_stride,1); w(stripi)'];
-        Aeq(pos:pos+avg_stride-1,avg_stride*m+1:end) = -eye(avg_stride);
+        strips = pos:pos+stride(i)+support_size-1;
+        stripsm= posm:posm+stride(i)*support_size-1;
+        Aeq(strips,stripsm) = A{support_size, stride(i)};
+        beq(strips,1) = [zeros(support_size,1); w(stripi)'];
+        Aeq(pos:pos+support_size-1,support_size*m+1:end) = -eye(support_size);
         
         posi= posi + stride(i) ;
-        pos = pos + stride(i)+avg_stride;
-        posm = posm + stride(i)*avg_stride;
+        pos = pos + stride(i)+support_size;
+        posm = posm + stride(i)*support_size;
     end
-    Aeq(pos, posm:end) = ones(1,avg_stride);
+    Aeq(pos, posm:end) = ones(1,support_size);
     beq(end) = 1;
 
     optim_options = optimset('Display','off', 'Diagnostics','off');
     [x, fval, exitflag] = linprog(ff, [], [], Aeq, beq, ...
-                                  zeros(avg_stride*(m+1),1), [], [], ...
+                                  zeros(support_size*(m+1),1), [], [], ...
                                   optim_options);
     if exitflag < 0
         error('linprog no search direction [%d %f]',exitflag, fval);
     end
     c.w = x(posm:end)'; c.w = c.w/sum(c.w);
     statusIter(iter) = d2energy(false);
+    if iter>1 && abs(statusIter(iter)-statusIter(iter-1))<iter_tol*abs(statusIter(iter))
+        break;
+    end
   end
 
-  global statusIterRec;
-  statusIterRec(:,2) = statusIter;
+%  global statusIterRec;
+%  statusIterRec(:,2) = statusIter;
   
   %h=figure;
   %plot(statusIter);
   %print(h, '-dpdf', 'centroid_sphLP.pdf');
 
-  fprintf(stdoutput, ' %f', c.w);
+  %fprintf(stdoutput, ' %f', c.w);
   fprintf(stdoutput, '\n');
+  if min(c.w)<1E-8
+      warning('There are %d/%d support points whose weights are less than 1E-8\n', sum(c.w<1E-8), support_size);
+  end
 end

@@ -2,55 +2,20 @@
 %% Load data
 clear;
 setparam;
-size=1000;
+max_sample_size=1000;
 
-s_modalities = 2;
-d_modalities = [3 3];
-filename='../data/mountaindat.d2';
-db = loaddata(size, s_modalities, d_modalities, filename);
+s_modalities = 1; %2;
+d_modalities = 2; %[3 3];
+filename='../data/weather.d2';
+db = loaddata(max_sample_size, s_modalities, d_modalities, filename);
 
-max_stride = max(cellfun(@(x) max(x.stride), db));
-kantorovich_prepare(max_stride);
+%% Additional Configuration
+options.max_support_size=30;
+options.mosek_path='/Users/jxy198/mosek/7/toolbox/r2013a/'; % optional
+options.init_method='kmeans';
+options.support_size=12;
+options.method='badmm'; % {'lp', 'gd', 'badmm', 'admm', 'ibp'}
 
+%% Compute Wasserstein Barycenter
+[c, OT]=Wasserstein_Barycenter(db, [], options);
 
-%%
-%profile on
-%for s=1:1 %1:s_modalities
-%    c.GD = centroid_sphGD(db{s}.stride, db{s}.supp, db{s}.w, []);
-%end
-%profile off
-%profile viewer
-%%
-%profile on
-for s=1:1 %1:s_modalities
-    c.Bregman = centroid_sphBregman(db{s}.stride, db{s}.supp, db{s}.w, []);
-    centroid_sphEnergy(db{s}.stride, db{s}.supp, db{s}.w, c.Bregman);    
-end
-%profile off
-%profile viewer
-
-%%
-%profile on
-%for s=2:2 %1:s_modalities
-%    c.ADMM = centroid_sphADMM(db{s}.stride, db{s}.supp, db{s}.w, []);
-%end
-%profile off
-%profile viewer
-%%
-%for s=1:1 %1:s_modalities
-%    c.LP = centroid_sphLP(db{s}.stride, db{s}.supp, db{s}.w);
-%end
-
-%%
-for s=1:1
-    tic;
-    c.IBP = centroid_sphIBP(db{s}.stride, db{s}.supp, db{s}.w, []);
-    toc;    
-    centroid_sphEnergy(db{s}.stride, db{s}.supp, db{s}.w, c.IBP);
-end
-
-%%
-for s=1:1
-    [model, beta] = mixture_sphSimulAnn(db{s}.stride, db{s}.supp, db{s}.w, 1);
-    centroid_sphEnergy(db{s}.stride, db{s}.supp, db{s}.w, model);
-end

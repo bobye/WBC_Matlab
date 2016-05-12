@@ -1,8 +1,5 @@
-function [c] = centroid_sphBregman(stride, supp, w, c0) 
+function [c] = centroid_sphBregman(stride, supp, w, c0, options) 
   % The algorithmic prototype of Wasserstein Barycenter using Bregman ADMM
-  % This approach has been described in the following paper:
-  %     Jianbo Ye, Panruo Wu, James Z. Wang and Jia Li, Fast Discrete
-  %     Distribution Clustering Under Wasserstein Distance, submitted 2015
   % 
   % This code has been created by Jianbo Ye (jxy198 [AT] ist.psu.edu).
   % 
@@ -10,39 +7,50 @@ function [c] = centroid_sphBregman(stride, supp, w, c0)
   n = length(stride);
   m = length(w);
   posvec=[1,cumsum(stride)+1];
-  avg_stride = ceil(mean(stride));  
 
-  if isempty(c0) || length(c0.w)~=avg_stride
-    c=centroid_rand(stride, supp, w);
+  if isempty(c0)
+    c=centroid_init(stride, supp, w, options);
   else
     c=c0;
   end
-  
-  %save cstart.mat
-  %save(['cstart' num2str(n) '.mat'], 'c', 'avg_stride');
-  load(['cstart' num2str(n) '.mat']);
-  %return;
-  X = zeros(avg_stride, m);
+  support_size=length(c.w);  
+  %load(['cstart' num2str(n) '-' num2str(support_size) '.mat']);
+
+  X = zeros(support_size, m);
   Y = zeros(size(X)); Z = X;
-  spIDX_rows = zeros(avg_stride * m,1);
-  spIDX_cols = zeros(avg_stride * m,1);
+  spIDX_rows = zeros(support_size * m,1);
+  spIDX_cols = zeros(support_size * m,1);
   for i=1:n
-      [xx, yy] = meshgrid((i-1)*avg_stride + (1:avg_stride), posvec(i):posvec(i+1)-1);
-      ii = avg_stride*(posvec(i)-1) + (1:(avg_stride*stride(i)));
+      [xx, yy] = meshgrid((i-1)*support_size + (1:support_size), posvec(i):posvec(i+1)-1);
+      ii = support_size*(posvec(i)-1) + (1:(support_size*stride(i)));
       spIDX_rows(ii) = xx';
       spIDX_cols(ii) = yy';
   end
-  spIDX = repmat(speye(avg_stride), [1, n]);
+  spIDX = repmat(speye(support_size), [1, n]);
   
   
   % initialization
   for i=1:n
-      Z(:,posvec(i):posvec(i+1)-1) = 1/(avg_stride*stride(i));
+      Z(:,posvec(i):posvec(i+1)-1) = 1/(support_size*stride(i));
   end
   C = pdist2(c.supp', supp', 'sqeuclidean');
   
   nIter = 2000;     
-  rho = 2.*mean(mean(pdist2(c.supp', supp', 'sqeuclidean')));
+  if isfield(options, 'badmm_max_iters')
+      nIter=options.badmm_max_iters;
+  end
+  
+  if isfield(options, 'badmm_rho')
+      rho = options.badmm_rho*median(median(pdist2(c.supp', supp', 'sqeuclidean')));
+  else
+      rho = 2.*mean(mean(pdist2(c.supp', supp', 'sqeuclidean')));
+  end
+  
+  if isfield(options, 'badmm_tau')
+      tau=options.tau;
+  else
+      tau=10;
+  end
   for iter = 1:nIter
       % update X
       X = Z .* exp((C+Y)/(-rho)) + eps;
@@ -51,22 +59,24 @@ function [c] = centroid_sphBregman(stride, supp, w, c0)
       % update Z
       Z0 = Z;
       Z = X .* exp(Y/rho) + eps;
-      spZ = sparse(spIDX_rows, spIDX_cols, Z(:), avg_stride * n, m);
-      tmp = full(sum(spZ, 2)); tmp = reshape(tmp, [avg_stride, n]);
+      spZ = sparse(spIDX_rows, spIDX_cols, Z(:), support_size * n, m);
+      tmp = full(sum(spZ, 2)); tmp = reshape(tmp, [support_size, n]);
       dg = bsxfun(@times, 1./tmp, c.w'); 
-      dg = sparse(1:avg_stride*n, 1:avg_stride*n, dg(:));
+      dg = sparse(1:support_size*n, 1:support_size*n, dg(:));
       Z = full(spIDX * dg * spZ);
       
       % update Y      
       Y = Y + rho * (X - Z);
       
       % update c.w
-      tmp = bsxfun(@times, tmp', 1./sum(tmp)');
-      sumW = sum(tmp);
+      tmp = bsxfun(@times, tmp, 1./sum(tmp));
+      sumW = sum(sqrt(tmp),2)'.^2;
+      %sumW = sum(tmp,2)';
       c.w = sumW / sum(sumW);
+      %c.w = Fisher_Rao_center(tmp');
       
       % update c.supp and compute C (lazy)
-      if mod(iter, 10)==0
+      if mod(iter, tau)==0 && ~isfield(options, 'support_points')
         c.supp = supp * X' ./ repmat(sum(X,2)', [d, 1]);      
         C = pdist2(c.supp', supp', 'sqeuclidean');
       end
@@ -91,8 +101,10 @@ function [c] = centroid_sphBregman(stride, supp, w, c0)
           dualres = norm(Z-Z0,'fro')/norm(Z,'fro');
           fprintf('\t %d %f %f %f ', iter, sum(C(:).*X(:))/n, ...
               primres, dualres);
-          fprintf('\n');          
+          fprintf('\n');       
+          if dualres < 1E-4 && primres<1E-4
+              break;
+          end
       end
   end
-   
 end
