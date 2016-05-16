@@ -8,7 +8,7 @@ B = cell(max_stride2);
 
 for n=1:max_stride1
   for m=1:max_stride2
-    A{n,m} = zeros(n+m, n*m);
+    A{n,m} = sparse(n+m, n*m);
     for k=1:n
       A{n,m}(k, k:n:n*m) = 1;
     end
@@ -21,6 +21,6 @@ end
 
 for n=1:max_stride1
   for m=1:max_stride2
-    B{n,m} = kron(ones(m), eye(n));
+    B{n,m} = sparse(kron(ones(m), eye(n)));
   end
 end
