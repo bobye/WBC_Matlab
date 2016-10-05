@@ -10,6 +10,6 @@ function [ c , OT] = centroid_sphEnergy( stride, supp, w, c0 )
     [D(it), OT{it}] = kantorovich(c.supp, c.w, supp(:,idx), w(idx));
   end
   obj = mean(D);
-  fprintf('\n\t\t %f', obj ); 
+  fprintf('\n\t\t %f\n', obj ); 
 end
 

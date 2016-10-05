@@ -42,6 +42,7 @@ function [c, OT] = Wasserstein_Barycenter(db, c0, options)
 %             options.badmm_max_iters (default, 2000)
 %             options.badmm_rho (default, 2.0)
 %             options.badmm_tau (default, 10)
+%             options.baddm_tol (default, 1E-4)
 %           'admm':
 %             options.admm_max_iters (default, 50)
 %             options.admm_inner_iters (default, 10)
@@ -55,7 +56,7 @@ function [c, OT] = Wasserstein_Barycenter(db, c0, options)
 %  c  -- Wasserstein barycenter
 %  OT -- matching matrix between c and each instance
 
-
+fprintf('\n**********************************************\n')
 
 
 max_stride = max(cellfun(@(x) max(x.stride), db));
@@ -70,16 +71,18 @@ n=length(db);
 c=cell(n,1);
 OT=cell(n,1);
 for s=1:n
+    tic;
     if strcmp(method, 'lp')
-        c{s}=centroid_sphLP(db{s}.stride, db{s}.supp, db{s}.w, options);
+        c{s}=centroid_sphLP(db{s}.stride, db{s}.supp, db{s}.w, c0{s}, options);
     elseif strcmp(method, 'gd')
-        c{s}=centroid_sphGD(db{s}.stride, db{s}.supp, db{s}.w, c0, options);
+        c{s}=centroid_sphGD(db{s}.stride, db{s}.supp, db{s}.w, c0{s}, options);
     elseif strcmp(method, 'badmm')
-        c{s}=centroid_sphBregman(db{s}.stride, db{s}.supp, db{s}.w, c0, options);
+        c{s}=centroid_sphBregman(db{s}.stride, db{s}.supp, db{s}.w, c0{s}, options);
     elseif strcmp(method, 'admm')
-        c{s}=centroid_sphADMM(db{s}.stride, db{s}.supp, db{s}.w, c0, options);
+        c{s}=centroid_sphADMM(db{s}.stride, db{s}.supp, db{s}.w, c0{s}, options);
     elseif strcmp(method, 'ibp')
-        c{s}=centroid_sphIBP(db{s}.stride, db{s}.supp, db{s}.w, c0, options);
+        c{s}=centroid_sphIBP(db{s}.stride, db{s}.supp, db{s}.w, c0{s}, options);
     end
+    toc;
     [~, OT{s}] =centroid_sphEnergy(db{s}.stride, db{s}.supp, db{s}.w, c{s});
 end

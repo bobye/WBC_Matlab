@@ -1,4 +1,4 @@
-function [c] = centroid_sphLP(stride, supp, w, options)
+function [c] = centroid_sphLP(stride, supp, w, c0, options)
 % Single phase centroid using FULL Linear Programming
 if isfield(options, 'mosek_path')
     addpath(options.mosek_path);
@@ -10,8 +10,11 @@ end
   dim = size(supp,1);
   n = length(stride);
   m = length(w);
-
-  c=centroid_init(stride, supp, w, options);
+  if isempty(c0)
+    c=centroid_init(stride, supp, w, options);
+  else
+    c=c0;
+  end
   support_size=length(c.w);
 
   X = zeros(support_size, m);
@@ -53,7 +56,9 @@ end
     % update c.supp
     for xsupp=1:suppIter
     d2energy(true);
-    c.supp = supp * X' ./ repmat(n*c.w, [dim,1]);
+    if ~isfield(options, 'support_points')
+        c.supp = supp * X' ./ repmat(n*c.w, [dim,1]);
+    end
     end
     %    x = [ reshape(X, avg_stride*m, 1); c.w'];
     

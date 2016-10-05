@@ -50,6 +50,7 @@ function [c] = centroid_sphIBP(stride, supp, w, c0, options)
   
   
   xi=exp(-C / rho);
+  xi(xi<1e-200)=1e-200; % add trick to avoid program breaking down
   xi=sparse(spIDX_rows, spIDX_cols, xi(:), support_size * n, m);
   v = ones(m, 1);
   w1=w';
@@ -69,22 +70,27 @@ function [c] = centroid_sphIBP(stride, supp, w, c0, options)
     
 
     if tol < ibp_tol && ~isfield(options, 'support_points')
+        c_back = c;
         X=full(spIDX * spdiags(u, 0, support_size*n, support_size*n) * xi * spdiags(v, 0, m, m));
         c.supp = supp * X' ./ repmat(sum(X,2)', [d, 1]);
         C = pdist2(c.supp', supp', 'sqeuclidean');
         xi=exp(-C / rho);
+        xi(xi<1e-200)=1e-200; % add trick to avoid program breaking down
         xi=sparse(spIDX_rows, spIDX_cols, xi(:), support_size * n, m);
         v = ones(m, 1);
         last_obj=obj;
         obj=sum(C(:).*X(:))/n;
         fprintf('\t %d %f\n', iter, obj);   
-        if (obj>last_obj) 
+        if (obj>last_obj)
+            c = c_back;
+            fprintf('terminate!\n');
             break;
         end
         tol=Inf;
     end
     
     if (tol < ibp_tol && isfield(options, 'support_points'))
+        fprintf('iter = %d\n', iter);
         break;
     end
 

@@ -51,6 +51,12 @@ function [c] = centroid_sphBregman(stride, supp, w, c0, options)
   else
       tau=10;
   end
+  
+  if isfield(options, 'badmm_tol')
+      badmm_tol=options.badmm_tol;
+  else
+      badmm_tol=1E-4;
+  end
   for iter = 1:nIter
       % update X
       X = Z .* exp((C+Y)/(-rho)) + eps;
@@ -70,8 +76,8 @@ function [c] = centroid_sphBregman(stride, supp, w, c0, options)
       
       % update c.w
       tmp = bsxfun(@times, tmp, 1./sum(tmp));
-      sumW = sum(sqrt(tmp),2)'.^2;
-      %sumW = sum(tmp,2)';
+      sumW = sum(sqrt(tmp),2)'.^2; % (R2)
+      %sumW = sum(tmp,2)'; % (R1)
       c.w = sumW / sum(sumW);
       %c.w = Fisher_Rao_center(tmp');
       
@@ -102,7 +108,7 @@ function [c] = centroid_sphBregman(stride, supp, w, c0, options)
           fprintf('\t %d %f %f %f ', iter, sum(C(:).*X(:))/n, ...
               primres, dualres);
           fprintf('\n');       
-          if dualres < 1E-4 && primres<1E-4
+          if sqrt(dualres * primres)<badmm_tol
               break;
           end
       end
