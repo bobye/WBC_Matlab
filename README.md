@@ -1,6 +1,6 @@
 ## Algorithm Prototypes
 
-Directory `matlab` contains prototype version in Matlab.
+Directory `matlab` contains prototype version in Matlab R2015b.
   
 - `profile_centroid.m` --- profiling the convergence of centroid updates
 - `Wasserstein_Barycenter.m` --- main function
