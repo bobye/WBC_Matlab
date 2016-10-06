@@ -20,9 +20,16 @@ for i=1:N
 end
 stride=m*ones(1,N);
 
-%% 
+%% compute GMM barycenter with B-ADMM method allowing the change of component weights
 c0.supp=supp(:, 1:m);
 c0.w=w(1:m);
 options.badmm_max_iters=2000;
 c=centroid_sphBregman_GMM(stride, supp, w, c0, options);
 
+%% compute GMM barycenter with EM-like algorithm fixing the component weights
+setparam;
+options.max_support_size=m;
+max_stride = max(stride);
+kantorovich_prepare(options.max_support_size,max_stride);
+
+c=centroid_sphEM_GMM(stride, supp, w, c0, options);
