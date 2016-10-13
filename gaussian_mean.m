@@ -14,13 +14,13 @@ Sigma=Sigma0;
 Sigma=reshape(Sigma, [d d m]);
 old_Sigma=zeros(d, d, m);
 V=reshape(V, [d d n]);
-while (max(abs(old_Sigma(:) - Sigma(:))) > 1E-4)
+while (max(abs(old_Sigma(:) - Sigma(:))) > 1E-6)
 old_Sigma = Sigma;
 Sigma=zeros(d, d, m);
-for i=1:n
-    mem=sqrtm(V(:,:,i));
-    for j=1:m
-        Sigma(:,:,j) = Sigma(:,:,j) + w(j,i) * sqrtm(mem * old_Sigma(:,:,j) * mem);
+for j=1:m
+    mem = sqrtm(old_Sigma(:,:,j));
+    for i=1:n    
+        Sigma(:,:,j) = Sigma(:,:,j) + w(j,i) * sqrtm(mem * V(:,:,i) * mem);
     end
 end
 end
