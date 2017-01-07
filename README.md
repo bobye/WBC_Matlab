@@ -5,6 +5,8 @@ The codes are released to reproduce parts of the experiments reported in the fol
 
 - Jianbo Ye, Panruo Wu, James Z. Wang and Jia Li, "Fast Discrete Distribution Clustering Using Wasserstein Barycenter with Sparse Support", *IEEE Transactions on Signal Processing* ([arXiv:1510.00012](http://arxiv.org/abs/1510.00012) [stat.CO], September 2015), accepted with mandatory minor revisions.
 
+If you need more efficient and scalable implementation in MPI and C (patent pending), please contact the author.
+
 The codes also implements algorithms in the following papers:
 
 - Jean-David Benamou, Guillaume Carlier, Marco Cuturi, Luca Nenna, and Gabriel Peyré, "Iterative Bregman projections for regularized transportation problems." *SIAM Journal on Scientific Computing* 37.2 (2015): A1111-A1138.
