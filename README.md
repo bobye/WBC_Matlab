@@ -13,6 +13,8 @@ The codes also implements algorithms in the following papers:
 
 - Marco Cuturi and Arnaud Doucet. "Fast Computation of Wasserstein Barycenters.", *International Conference on Machine Learning*, Atlanta, USA, June 2013.
 
+- Jia Li, and James Z. Wang. "Real-time computerized annotation of pictures." *IEEE Transactions on Pattern Analysis and Machine Intelligence* 30.6 (2008): 985-1002.
+
 
 
 
