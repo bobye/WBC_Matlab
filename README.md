@@ -31,16 +31,14 @@ Directory `matlab` contains prototype version in Matlab R2015b.
 
 
 ----
-Copyright 2017 Jianbo Ye
+Copyright (C) 2017 The Pennsylvania State University, USA - All Rights Reserved 
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Installation and use of this software for academic, non-profit, or government-sponsored research purposes is hereby granted. Use of the software under this license is restricted to non-commercial purposes. COMMERCIAL USE OF THE SOFTWARE REQUIRES A SEPARATELY EXECUTED WRITTEN LICENSE AGREEMENT with the copyright holder.
 
-       http://www.apache.org/licenses/LICENSE-2.0
+Any use of the software, and any modifications, improvements, or derivatives to the software the user(s) may create (collectively, “Improvements”) must be solely for internal, non-commercial purposes. A user of the software shall not distribute or transfer the software or Improvements to any person or third parties without prior written permission from copyright holder.
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+Any publication of results obtained with the software must acknowledge its use by an appropriate citation to the article titled "Fast Discrete Distribution Clustering Using Wasserstein Barycenter with Sparse Support" published in the IEEE Transactions on Signal Processing in 2017.
+
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. THE COPYRIGHT HOLDER MAKES NO REPRESENTATION OR WARRANTY THAT THE SOFTWARE WILL NOT INFRINGE ANY PATENT OR OTHER PROPRIETARY RIGHT. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Author: Jianbo Ye, College of Information Sciences and Technology, yelpoo@gmail.com
