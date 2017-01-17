@@ -1,6 +1,8 @@
 # Efficient Wasserstein barycenter in MATLAB
 
-This repository includes the propotype codes for computing the Wasserstein barycenter.
+*Author's updated version at https://github.com/bobye/WBC_Matlab* 
+
+This package includes the propotype codes for computing the Wasserstein barycenter.
 The codes are released to reproduce parts of the experiments reported in the following journal paper:
 
 - Jianbo Ye, Panruo Wu, James Z. Wang and Jia Li, "Fast Discrete Distribution Clustering Using Wasserstein Barycenter with Sparse Support", *IEEE Transactions on Signal Processing* ([arXiv:1510.00012](http://arxiv.org/abs/1510.00012) [stat.CO], September 2015), accepted with mandatory minor revisions.
