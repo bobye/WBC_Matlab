@@ -5,7 +5,7 @@
 This package includes the propotype codes for computing the Wasserstein barycenter.
 The codes are released to reproduce parts of the experiments reported in the following journal paper:
 
-- Jianbo Ye, Panruo Wu, James Z. Wang and Jia Li, "Fast Discrete Distribution Clustering Using Wasserstein Barycenter with Sparse Support", *IEEE Transactions on Signal Processing* ([arXiv:1510.00012](http://arxiv.org/abs/1510.00012) [stat.CO], September 2015), accepted with mandatory minor revisions.
+- Jianbo Ye, Panruo Wu, James Z. Wang and Jia Li, "Fast Discrete Distribution Clustering Using Wasserstein Barycenter with Sparse Support", *IEEE Transactions on Signal Processing*, 2017 ([arXiv:1510.00012](http://arxiv.org/abs/1510.00012) [stat.CO], September 2015), to appear.
 
 If you need more efficient and scalable implementation in MPI and C (patent pending), please contact the author.
 
