@@ -31,7 +31,16 @@ Directory `matlab` contains prototype version in Matlab R2015b.
 - `profile_kantorovich.m` --- profiling LP solution of transportation problem
 - `centroid_sph*.m` --- computing centroid of a single phase
 
+## Get started
 
+Try to run `profile_centroid.m` from the project directory. Checkout the data structure used in the example. 
+
+This code also can be tailored to work with histogram data, but the coordinates of each bins should also be supplied in the data structure. Meanwhile, set the option for fixing the support points:
+
+```matlab
+%% comment out this line to use fixed support points of barycenter
+options.support_points= 'fixed';
+```
 ----
 Copyright (C) 2017 The Pennsylvania State University, USA - All Rights Reserved 
 
