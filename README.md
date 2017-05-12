@@ -35,7 +35,7 @@ Directory `matlab` contains prototype version in Matlab R2015b.
 
 Try to run `profile_centroid.m` from the project directory. Checkout the data structure used in the example. 
 
-This code also can be tailored to work with histogram data, but the coordinates of each bins should also be supplied in the data structure. Meanwhile, set the option for fixing the support points:
+This code also can be tailored to work with histogram data, but the coordinates of bins should also be supplied as support points in the data structure. Meanwhile, set the option for fixing the support points of WBC:
 
 ```matlab
 %% comment out this line to use fixed support points of barycenter
