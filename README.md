@@ -33,6 +33,8 @@ Directory `matlab` contains prototype version in Matlab R2015b.
 
 ## Get started
 
+***The code is tested in Matlab 2015a***
+
 Try to run `profile_centroid.m` from the project directory. Checkout the data structure used in the example. 
 
 This code also can be tailored to work with histogram data, but the coordinates of bins should also be supplied as support points in the data structure. Meanwhile, set the option for fixing the support points of WBC:
