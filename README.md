@@ -43,6 +43,14 @@ This code also can be tailored to work with histogram data, but the coordinates 
 %% comment out this line to use fixed support points of barycenter
 options.support_points= 'fixed';
 ```
+
+## FAQ
+
+- How BADMM works for MNIST dataset?
+ I was able to generate BADMM barycenter from 100 MNIST images (sparse representation). At Intel i7 3.4GHz PC, the pre-converged results at 200 seconds and 1000 seconds are depicted as follows respectively:
+ 
+ <img src="https://github.com/bobye/WBC_Matlab/raw/master/BADMM-200.png" width="200"> <img src="https://github.com/bobye/WBC_Matlab/raw/master/BADMM-1000.png" width="200">
+ 
 ----
 Copyright (C) 2017 The Pennsylvania State University, USA - All Rights Reserved 
 
